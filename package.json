@@ -1,0 +1,8 @@
+{
+    "name": "jsp2p-client",
+    "version": "0.1.0",
+    "dependencies": {
+        "node-xmpp-client": "",
+        "node-xmpp": ""
+    }
+}
