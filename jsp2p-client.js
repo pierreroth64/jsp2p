@@ -2,6 +2,7 @@
 
 var Client = require('node-xmpp-client');
 var xmpp = require('node-xmpp');
+var nxmlpp = require('nxmlpp');
 var argv = process.argv;
 
 if (argv.length < 3) {
@@ -25,6 +26,7 @@ client.on('online', function() {
     }).c('query', {
          xmlns: 'jabber:iq:roster'
     });
+    console.log('Requesting roster:', nxmlpp.strPrint(roster.toString()));
     client.send(roster);
 });
 
@@ -33,7 +35,7 @@ client.on('offline', function() {
 });
 
 client.on('stanza', function(stanza) {
-    console.log('Incoming stanza:', stanza.toString());
+    console.log('Incoming stanza:\n', nxmlpp.strPrint(stanza.toString()));
 });
 
 process.on('SIGINT', function() {

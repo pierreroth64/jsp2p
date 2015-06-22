@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "dependencies": {
         "node-xmpp-client": "",
-        "node-xmpp": ""
+        "node-xmpp": "",
+	"nxmlpp": ""
     }
 }
