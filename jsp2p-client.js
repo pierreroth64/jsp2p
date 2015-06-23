@@ -26,14 +26,6 @@ if (argv.length < 3) {
 
 xmpp.on('online', function(data) {
     console.log('Connected with JID: ' + data.jid.user);
-    console.log('Sending presence');
-    xmpp.setPresence('away', 'Swimming...');
-    // var roster = xmpp.getRoster();
-    // console.log(roster);
-});
-
-xmpp.on('chat', function(from, message) {
-    xmpp.send(from, 'echo: ' + message);
 });
 
 xmpp.on('error', function(err) {
