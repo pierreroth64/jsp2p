@@ -1,45 +1,45 @@
 'use strict';
 
-var Client = require('node-xmpp-client');
-var xmpp = require('node-xmpp');
 var nxmlpp = require('nxmlpp');
+var xmpp = require('simple-xmpp');
 var argv = process.argv;
 
 if (argv.length < 3) {
-    console.error('Usage: node jsp2p-client.js <my-jid> ' +
-        '<my-password> <host>')
-    process.exit(1)
+    console.error('Usage: node jsp2p-client.js <myjid> ' +
+        '<mypassword> <host>');
+    process.exit(1);
 }
 
-var client = new Client({
-    jid: argv[2],
-    password: argv[3],
-    host: argv[4],
-    port: 5222
+xmpp.on('online', function(data) {
+    console.log('Connected with JID: ' + data.jid.user);
+    console.log('Sending presence');
+    xmpp.setPresence('away', 'Swimming...');
+    // var roster = xmpp.getRoster();
+    // console.log(roster);
 });
 
-client.on('online', function() {
-    console.log('online! :)');
-    var roster = new xmpp.Element('iq', {
-        id: 'roster_0',
-        type: 'get'
-    }).c('query', {
-         xmlns: 'jabber:iq:roster'
-    });
-    console.log('Requesting roster:', nxmlpp.strPrint(roster.toString()));
-    client.send(roster);
+xmpp.on('chat', function(from, message) {
+    xmpp.send(from, 'echo: ' + message);
 });
 
-client.on('offline', function() {
-    console.log('online!');
+xmpp.on('error', function(err) {
+    console.error(err);
 });
 
-client.on('stanza', function(stanza) {
-    console.log('Incoming stanza:\n', nxmlpp.strPrint(stanza.toString()));
+xmpp.on('stanza', function(stanza) {
+     console.log('Incoming stanza:\n', nxmlpp.strPrint(stanza.toString()));
 });
 
-process.on('SIGINT', function() {
-    console.log("Exiting");
-    client.end();
-    process.exit();
+xmpp.on('subscribe', function(from) {
+// if (from === 'a.friend@gmail.com') {
+//     xmpp.acceptSubscription(from);
+//     }
 });
+
+xmpp.connect({
+        jid                 : argv[2],
+        password            : argv[3],
+        host                : argv[4],
+        port                : 5222
+});
+
