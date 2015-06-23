@@ -9,6 +9,14 @@ var nxmlpp = require('nxmlpp');
 var xmpp = require('simple-xmpp');
 var argv = process.argv;
 
+var STATUS = {
+    AWAY: "away",
+    DND: "dnd",
+    XA: "xa",
+    ONLINE: "online",
+    OFFLINE: "offline"
+};
+
 function ConnectioInfo() {
     this.jid = argv[2];
     this.pwd = argv[3];
@@ -56,7 +64,7 @@ xmpp.connect({
 });
 
 console.log('Sending presence...');
-xmpp.setPresence('away', 'Swimming :-D \o/');
+xmpp.setPresence(STATUS.AWAY, 'Swimming :-D \o/');
 
 console.log('Asking for roster...');
 xmpp.getRoster();
