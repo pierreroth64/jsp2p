@@ -26,7 +26,7 @@ function ConnectioInfo() {
 
 var connInfo = new ConnectioInfo();
 
-if (argv.length < 3) {
+if (argv.length < 5) {
     console.error('Usage: node jsp2p-client.js <myjid> ' +
         '<mypassword> <host>');
     process.exit(1);
