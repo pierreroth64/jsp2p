@@ -33,8 +33,7 @@ program
   .parse(process.argv);
 
 if (process.argv.slice(2).length < 3) {
-    program.outputHelp();
-    process.exit(1);
+    program.help();
 }
 
 logger.setLevel(program.debug);
