@@ -15,16 +15,29 @@ var STATUS = {
 
 var nxmlpp = require('nxmlpp');
 var xmpp = require('simple-xmpp');
-var argv = process.argv;
+
 var log4js = require('log4js');
 log4js.configure({
   appenders: [
     { type: 'console' },
-    { type: 'file', filename: 'logs/cheese.log', category: 'cheese' }
   ]
 });
+
 var logger = log4js.getLogger('jsp2p');
-logger.setLevel('DEBUG');
+var argv = process.argv;
+
+var program = require('commander');
+program
+  .version('0.1.0')
+  .usage('[options] <JID> <password> <host>')
+  .option('-d --debug <level>', 'Log level', /^(DEBUG|INFO|ERROR)$/i, 'INFO')
+  .parse(process.argv);
+if (argv.length < 5) {
+    console.log('Usage: node jsp2p-client.js <JID> ' +
+        '<password> <host>');
+    process.exit(1);
+}
+logger.setLevel(program.debug);
 
 function ConnectioInfo() {
     this.jid = argv[2];
@@ -34,12 +47,6 @@ function ConnectioInfo() {
 }
 
 var connInfo = new ConnectioInfo();
-
-if (argv.length < 5) {
-    logger.error('Usage: node jsp2p-client.js <myjid> ' +
-        '<mypassword> <host>');
-    process.exit(1);
-}
 
 xmpp.on('online', function(data) {
     logger.info('Connected with JID:', data.jid.user);
