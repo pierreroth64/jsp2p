@@ -24,7 +24,6 @@ log4js.configure({
 });
 
 var logger = log4js.getLogger('jsp2p');
-var argv = process.argv;
 
 var program = require('commander');
 program
@@ -32,17 +31,18 @@ program
   .usage('[options] <JID> <password> <host>')
   .option('-d --debug <level>', 'Log level', /^(DEBUG|INFO|ERROR)$/i, 'INFO')
   .parse(process.argv);
-if (argv.length < 5) {
-    console.log('Usage: node jsp2p-client.js <JID> ' +
-        '<password> <host>');
+
+if (process.argv.slice(2).length < 3) {
+    program.outputHelp();
     process.exit(1);
 }
+
 logger.setLevel(program.debug);
 
 function ConnectioInfo() {
-    this.jid = argv[2];
-    this.pwd = argv[3];
-    this.host = argv[4];
+    this.jid = process.argv[2];
+    this.pwd = process.argv[3];
+    this.host = process.argv[4];
     this.port = 5222;
 }
 
