@@ -5,10 +5,6 @@
  */
 'use strict';
 
-var nxmlpp = require('nxmlpp');
-var xmpp = require('simple-xmpp');
-var argv = process.argv;
-
 var STATUS = {
     AWAY: "away",
     DND: "dnd",
@@ -16,6 +12,19 @@ var STATUS = {
     ONLINE: "online",
     OFFLINE: "offline"
 };
+
+var nxmlpp = require('nxmlpp');
+var xmpp = require('simple-xmpp');
+var argv = process.argv;
+var log4js = require('log4js');
+log4js.configure({
+  appenders: [
+    { type: 'console' },
+    { type: 'file', filename: 'logs/cheese.log', category: 'cheese' }
+  ]
+});
+var logger = log4js.getLogger('jsp2p');
+logger.setLevel('DEBUG');
 
 function ConnectioInfo() {
     this.jid = argv[2];
@@ -27,32 +36,32 @@ function ConnectioInfo() {
 var connInfo = new ConnectioInfo();
 
 if (argv.length < 5) {
-    console.error('Usage: node jsp2p-client.js <myjid> ' +
+    logger.error('Usage: node jsp2p-client.js <myjid> ' +
         '<mypassword> <host>');
     process.exit(1);
 }
 
 xmpp.on('online', function(data) {
-    console.log('Connected with JID: ' + data.jid.user);
+    logger.info('Connected with JID:', data.jid.user);
 });
 
 xmpp.on('error', function(err) {
-    console.error(err);
+    logger.error(err);
 });
 
 xmpp.on('stanza', function(stanza) {
-    console.log('Incoming stanza:', nxmlpp.strPrint(stanza.toString()));
+    logger.debug('Incoming stanza:', nxmlpp.strPrint(stanza.toString()));
     if (stanza.is('iq') && stanza.attrs.type === 'result' && stanza.attrs.id === 'roster_0') {
         var buddies = stanza.children[0].children;
-        console.log("buddies:", buddies);
+        logger.debug("buddies:", buddies);
     }
 });
 
 process.on('SIGINT', function() {
-    console.log("\nCaught ctrl+c");
-    console.log("Disconnecting...");
+    logger.debug("\nCaught ctrl+c");
+    logger.debug("Disconnecting...");
     xmpp.disconnect();
-    console.log("Exiting...");
+    logger.info("Exiting...");
     process.exit();
 });
 
@@ -63,8 +72,8 @@ xmpp.connect({
         port                : connInfo.port
 });
 
-console.log('Sending presence...');
-xmpp.setPresence(STATUS.AWAY, 'Swimming :-D \o/');
+logger.debug('Sending presence...');
+xmpp.setPresence(STATUS.ONLINE, 'At work!');
 
-console.log('Asking for roster...');
+logger.debug('Asking for roster...');
 xmpp.getRoster();
