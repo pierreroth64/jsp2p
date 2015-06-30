@@ -30,6 +30,7 @@ program
   .version('0.1.0')
   .usage('[options] <JID> <password> <host>')
   .option('-d --debug <level>', 'Log level', /^(DEBUG|INFO|ERROR)$/i, 'INFO')
+  .option('-port, --port <port>', 'XMPP port to connect to', parseInt)
   .parse(process.argv);
 
 if (process.argv.slice(2).length < 3) {
@@ -42,7 +43,7 @@ function ConnectioInfo() {
     this.jid = process.argv[2];
     this.pwd = process.argv[3];
     this.host = process.argv[4];
-    this.port = 5222;
+    this.port = program.port || 5222;
 }
 
 var connInfo = new ConnectioInfo();
@@ -70,6 +71,8 @@ process.on('SIGINT', function() {
     logger.info("Exiting...");
     process.exit();
 });
+
+logger.debug('Connecting to %s:%d with %s', connInfo.host, connInfo.port, connInfo.jid);
 
 xmpp.connect({
         jid                 : connInfo.jid,
