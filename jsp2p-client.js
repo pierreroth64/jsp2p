@@ -13,10 +13,11 @@ var STATUS = {
     OFFLINE: "offline"
 };
 
-var nxmlpp = require('nxmlpp');
-var xmpp = require('simple-xmpp');
+var xmpp = require('simple-xmpp'),
+    log4js = require('log4js'),
+    nxmlpp = require('nxmlpp'),
+    program = require('commander');
 
-var log4js = require('log4js');
 log4js.configure({
   appenders: [
     { type: 'console' },
@@ -25,12 +26,12 @@ log4js.configure({
 
 var logger = log4js.getLogger('jsp2p');
 
-var program = require('commander');
 program
   .version('0.1.0')
   .usage('[options] <JID> <password> <host>')
   .option('-d --debug <level>', 'Log level', /^(DEBUG|INFO|ERROR)$/i, 'INFO')
   .option('-port, --port <port>', 'XMPP port to connect to', parseInt)
+  .option('-r, --register', 'Register before any other XMPP operation')
   .parse(process.argv);
 
 if (process.argv.slice(2).length < 3) {
@@ -39,14 +40,15 @@ if (process.argv.slice(2).length < 3) {
 
 logger.setLevel(program.debug);
 
-function ConnectioInfo() {
-    this.jid = process.argv[2];
-    this.pwd = process.argv[3];
-    this.host = process.argv[4];
-    this.port = program.port || 5222;
-}
+var options = {
+  jid: process.argv[2],
+  password: process.argv[3],
+  host: process.argv[4],
+  port: program.port || 5222,
+  register: program.register || false
+};
 
-var connInfo = new ConnectioInfo();
+logger.debug('XMPP connection options', options);
 
 xmpp.on('online', function(data) {
     logger.info('Connected with JID:', data.jid.user);
@@ -60,7 +62,7 @@ xmpp.on('stanza', function(stanza) {
     logger.debug('Incoming stanza:', nxmlpp.strPrint(stanza.toString()));
     if (stanza.is('iq') && stanza.attrs.type === 'result' && stanza.attrs.id === 'roster_0') {
         var buddies = stanza.children[0].children;
-        logger.debug("buddies:", buddies);
+        logger.info('buddies:', buddies);
     }
 });
 
@@ -72,14 +74,8 @@ process.on('SIGINT', function() {
     process.exit();
 });
 
-logger.debug('Connecting to %s:%d with %s', connInfo.host, connInfo.port, connInfo.jid);
-
-xmpp.connect({
-        jid                 : connInfo.jid,
-        password            : connInfo.pwd,
-        host                : connInfo.host,
-        port                : connInfo.port
-});
+logger.debug('Connecting to %s:%d with %s', options.host, options.port, options.jid);
+xmpp.connect(options);
 
 logger.debug('Sending presence...');
 xmpp.setPresence(STATUS.ONLINE, 'At work!');
