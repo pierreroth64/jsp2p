@@ -14,6 +14,7 @@ var STATUS = {
 };
 
 var JsP2PClient = require('./client').JsP2PClient,
+    nxmlpp = require('nxmlpp'),
     program = require('commander');
 
 program
@@ -46,7 +47,7 @@ client.addListener('online', function(data) {
 });
 
 client.addListener('stanza', function(stanza) {
-  this.logger.debug('Incoming stanza:', stanza);
+  this.logger.debug('Incoming stanza:', nxmlpp.strPrint(stanza.toString()));
   if (stanza.is('iq') && stanza.attrs.type === 'result' && stanza.attrs.id === 'roster_0') {
       var buddies = stanza.children[0].children;
       this.logger.info('buddies:', buddies);
