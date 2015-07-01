@@ -14,8 +14,7 @@ var STATUS = {
 };
 
 var Client = require('node-xmpp-client'),
-    ltx = require('node-xmpp-core').ltx,
-    nxmlpp = require('nxmlpp'),
+    xmpp = require('node-xmpp'),
     log4js = require('log4js'),
     program = require('commander');
 
@@ -56,9 +55,9 @@ function JsP2PClient(options) {
 
 util.inherits(JsP2PClient, Client);
 
-
 JsP2PClient.prototype.getRoster = function () {
-  var roster = new ltx.Element('iq',{id: 'roster_0',type: 'get'}).c('query', { xmlns: 'jabber:iq:roster'});
+  var roster = new xmpp.Element('iq', { id: 'roster_0', type: 'get' });
+  roster.c('query', { xmlns: 'jabber:iq:roster' });
   this.logger.debug('Send get roster request:', roster);
   this.send(roster);
 };
@@ -68,18 +67,15 @@ var client = new JsP2PClient(options);
 client.addListener('online', function(data) {
   client.send('<presence/>');
   this.logger.info('Connected with JID:', data.jid.user);
+  client.getRoster();
 });
 
 client.addListener('stanza', function(stanza) {
-  this.logger.debug('Incoming stanza:', nxmlpp.strPrint(stanza.toString()));
+  this.logger.debug('Incoming stanza:', stanza);
   if (stanza.is('iq') && stanza.attrs.type === 'result' && stanza.attrs.id === 'roster_0') {
       var buddies = stanza.children[0].children;
-      this.logger.debug("buddies:", buddies);
+      this.logger.info('buddies:', buddies);
   }
-});
-
-client.addListener('connect', function () {
-    this.logger.debug('Client is connected');
 });
 
 client.addListener('error', function(e) {
@@ -87,4 +83,4 @@ client.addListener('error', function(e) {
 });
 
 
-client.getRoster();
+
