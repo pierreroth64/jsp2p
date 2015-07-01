@@ -13,16 +13,8 @@ var STATUS = {
     OFFLINE: "offline"
 };
 
-var Client = require('node-xmpp-client'),
-    xmpp = require('node-xmpp'),
-    log4js = require('log4js'),
+var JsP2PClient = require('./client').JsP2PClient,
     program = require('commander');
-
-log4js.configure({
-  appenders: [
-    { type: 'console' },
-  ]
-});
 
 program
   .version('0.1.0')
@@ -44,29 +36,12 @@ var options = {
   register: program.register || false,
 };
 
-var util = require('util');
-
-function JsP2PClient(options) {
-  this.logger = log4js.getLogger('jsp2p');
-  this.logger.setLevel(program.debug);
-  this.logger.debug('JsP2PClient creation options:', options);
-  Client.call(this, options);
-}
-
-util.inherits(JsP2PClient, Client);
-
-JsP2PClient.prototype.getRoster = function () {
-  var roster = new xmpp.Element('iq', { id: 'roster_0', type: 'get' });
-  roster.c('query', { xmlns: 'jabber:iq:roster' });
-  this.logger.debug('Send get roster request:', roster);
-  this.send(roster);
-};
-
 var client = new JsP2PClient(options);
 
 client.addListener('online', function(data) {
   client.send('<presence/>');
   this.logger.info('Connected with JID:', data.jid.user);
+  client.sendPresence(STATUS.AWAY, 'working!');
   client.getRoster();
 });
 
