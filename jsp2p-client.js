@@ -30,7 +30,7 @@ program
   .version('0.1.0')
   .usage('[options] <JID> <password> <host>')
   .option('-d --debug <level>', 'Log level', /^(DEBUG|INFO|ERROR)$/i, 'INFO')
-  .option('-port, --port <port>', 'XMPP port to connect to', parseInt)
+  .option('-p, --port <port>', 'XMPP port to connect to', parseInt)
   .option('-r, --register', 'Register before any other XMPP operation')
   .parse(process.argv);
 
