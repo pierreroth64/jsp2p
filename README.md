@@ -1,1 +1,1 @@
-jsp2p is a Javascript library to interact with Legrand P2P server
+Simple Javascript CLI to connect to an XMPP server
